@@ -30,15 +30,15 @@ func main () {
 
     mux.HandleFunc("GET /", rootHandler)
     mux.Handle("GET /app/", fsHandler) 
-    mux.HandleFunc("GET /healthz", handlerReadiness)
-    mux.HandleFunc("GET /metrics", apiCfg.handlerMetrics)
-    mux.HandleFunc("POST /reset", apiCfg.handlerReset)
+    mux.HandleFunc("GET /api/healthz", handlerReadiness)
+    mux.HandleFunc("GET /api/metrics", apiCfg.handlerMetrics)
+    mux.HandleFunc("POST /api/reset", apiCfg.handlerReset)
 
     mux.HandleFunc("POST /", handerMethodNotAllowed)
     mux.HandleFunc("POST /app/", handerMethodNotAllowed)
-    mux.HandleFunc("POST /healthz", handerMethodNotAllowed)
-    mux.HandleFunc("POST /metrics", handerMethodNotAllowed)
-    mux.HandleFunc("GET /reset", handerMethodNotAllowed)
+    mux.HandleFunc("POST /api/healthz", handerMethodNotAllowed)
+    mux.HandleFunc("POST /api/metrics", handerMethodNotAllowed)
+    mux.HandleFunc("GET /api/reset", handerMethodNotAllowed)
     
     srv := &http.Server {
         Addr: ":" + port,
