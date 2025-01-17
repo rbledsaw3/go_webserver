@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-docker compose run migrate
+docker compose run --remove-orphans migrate
