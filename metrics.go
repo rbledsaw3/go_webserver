@@ -1,14 +1,14 @@
 package main
 
 import (
-    "fmt"
-    "net/http"
+	"fmt"
+	"net/http"
 )
 
 func (cfg *apiConfig) handlerMetrics(w http.ResponseWriter, r *http.Request) {
-    w.Header().Set("Content-Type", "text/html")
-    w.WriteHeader(http.StatusOK)
-    html := fmt.Sprintf(`
+	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(http.StatusOK)
+	html := fmt.Sprintf(`
     <html>
         <body>
             <h1>Welcome, Chirpy Admin</h1>
@@ -16,15 +16,15 @@ func (cfg *apiConfig) handlerMetrics(w http.ResponseWriter, r *http.Request) {
         </body>
     </html>
     `, cfg.fileserverHits.Load())
-    _, err := w.Write([]byte(html))
-    if err != nil {
-        fmt.Println("Error writing response: ", err)
-    }
+	_, err := w.Write([]byte(html))
+	if err != nil {
+		fmt.Println("Error writing response: ", err)
+	}
 }
 
 func (cfg *apiConfig) middlewareMetricsInc(next http.Handler) http.Handler {
-    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        cfg.fileserverHits.Add(1)
-        next.ServeHTTP(w, r)
-    })
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		cfg.fileserverHits.Add(1)
+		next.ServeHTTP(w, r)
+	})
 }
