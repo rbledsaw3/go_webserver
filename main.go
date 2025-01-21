@@ -24,10 +24,15 @@ func main() {
 	const filepathRoot = "."
 	const port = "8080"
 
-	godotenv.Load()
+	godotenv.Load(".env")
 	dbURL := os.Getenv("DB_URL")
 	if dbURL == "" {
 		log.Fatal("DB_URL must be set")
+	}
+
+	dbConn, err := sql.Open("postgres", dbURL)
+	if err != nil {
+		log.Fatalf("Error opening database: %s", err)
 	}
 	platform := os.Getenv("PLATFORM")
 	if platform == "" {
@@ -42,10 +47,6 @@ func main() {
 		log.Fatal("POLKA_KEY env var must be set")
 	}
 
-	dbConn, err := sql.Open("postgres", dbURL)
-	if err != nil {
-		log.Fatalf("Error opening database: %s", err)
-	}
 	dbQueries := database.New(dbConn)
 
 	apiCfg := apiConfig{
