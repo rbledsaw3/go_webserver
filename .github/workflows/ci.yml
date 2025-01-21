@@ -1,0 +1,67 @@
+name: ci
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: chirpy
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23.4"
+
+      - name: Install sqlc
+        run: go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+
+      - name: Install goose
+        run: go install github.com/pressly/goose/v3/cmd/goose@latest
+
+      - name: Generate SQL
+        run: sqlc generate
+
+
+      - name: Run migrations
+        run: goose -dir=./sql/schema postgres "postgres://postgres:postgres@localhost:5432/chirpy?sslmode=disable" up
+        env:
+          PGHOST: localhost
+          PGPORT: 5432
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: chirpy
+
+      - name: Format
+        run: go fmt ./...
+  
+      - name: Vet
+        run: go vet ./...
+  
+      - name: Test
+        run: go test -cover ./...
+        env:
+          DOCKER_DB_URL: ${{ secrets.DOCKER_DB_URL }}
+  
